@@ -53,7 +53,7 @@ void led_2_task(void *p) {
     gpio_init(LED_PIN_G);
     gpio_set_dir(LED_PIN_G, GPIO_OUT);
 
-    int delay = 100;
+    int delay = 0;
 
     while (true) {
         xQueueReceive(xQueueButId_G, &delay, 0);
