@@ -15,6 +15,15 @@ const int LED_PIN_G = 6;
 SemaphoreHandle_t xSemaphore_r;
 SemaphoreHandle_t xSemaphore_g;
 
+void gpio_callback(uint gpio, uint32_t events) {
+    if (gpio == BTN_PIN_R) {
+        xSemaphoreGiveFromISR(xSemaphore_r, NULL);
+    }
+    if (gpio == BTN_PIN_G) {
+        xSemaphoreGiveFromISR(xSemaphore_g, NULL);
+    }
+}
+
 void led_1_task(void *p) {
   gpio_init(LED_PIN_R);
   gpio_set_dir(LED_PIN_R, GPIO_OUT);
