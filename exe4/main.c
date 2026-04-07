@@ -15,10 +15,10 @@ QueueHandle_t xQueueButId_R;
 QueueHandle_t xQueueButId_G;
 
 void btn_callback(uint gpio, uint32_t events) {
-    static int delay_r = 0;
-    static int delay_g = 0;
+    static int delay_r = 100;
+    static int delay_g = 100;
 
-    if (events == GPIO_IRQ_EDGE_FALL) {
+    if (events & GPIO_IRQ_EDGE_FALL) {
         if (gpio == BTN_PIN_R) {
             if (delay_r < 1000) delay_r += 100;
             else delay_r = 100;
@@ -40,9 +40,7 @@ void led_1_task(void *p) {
     int delay = 100;
 
     while (true) {
-        if (xQueueReceive(xQueueButId_R, &delay, portMAX_DELAY)) {
-            printf("%d\n", delay);
-        }
+        xQueueReceive(xQueueButId_R, &delay, 0);
 
         gpio_put(LED_PIN_R, 1);
         vTaskDelay(pdMS_TO_TICKS(delay));
@@ -58,9 +56,7 @@ void led_2_task(void *p) {
     int delay = 100;
 
     while (true) {
-        if (xQueueReceive(xQueueButId_G, &delay, portMAX_DELAY)) {
-            printf("%d\n", delay);
-        }
+        xQueueReceive(xQueueButId_G, &delay, 0);
 
         gpio_put(LED_PIN_G, 1);
         vTaskDelay(pdMS_TO_TICKS(delay));
