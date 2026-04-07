@@ -37,7 +37,7 @@ void led_1_task(void *p) {
     gpio_init(LED_PIN_R);
     gpio_set_dir(LED_PIN_R, GPIO_OUT);
 
-    int delay = 0;
+    int delay = 100;
 
     while (true) {
         if (xQueueReceive(xQueueButId_R, &delay, portMAX_DELAY)) {
@@ -55,7 +55,7 @@ void led_2_task(void *p) {
     gpio_init(LED_PIN_G);
     gpio_set_dir(LED_PIN_G, GPIO_OUT);
 
-    int delay = 0;
+    int delay = 100;
 
     while (true) {
         if (xQueueReceive(xQueueButId_G, &delay, portMAX_DELAY)) {
