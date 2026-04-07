@@ -12,29 +12,8 @@ const int BTN_PIN_G = 26;
 const int LED_PIN_R = 4;
 const int LED_PIN_G = 6;
 
-QueueHandle_t xQueueButId;
-
-void gpio_callback(uint gpio, uint32_t events) {
-    if (gpio == BTN_PIN_R) {
-        static int delay_r_static = 0;
-        if (delay_r_static < 1000) {
-            delay_r_static += 100;
-        } else {
-            delay_r_static = 100;
-        }
-        xQueueSendFromISR(xQueueButId, &delay_r_static, NULL);
-    }
-
-    if (gpio == BTN_PIN_G) {
-        static int delay_g_static = 0;
-        if (delay_g_static < 1000) {
-            delay_g_static += 100;
-        } else {
-            delay_g_static = 100;
-        }
-        xQueueSendFromISR(xQueueButId, &delay_g_static, NULL);
-    }
-}
+QueueHandle_t xQueueButId_R;
+QueueHandle_t xQueueButId_G;
 
 void led_1_task(void *p) {
     gpio_init(LED_PIN_R);
@@ -42,7 +21,7 @@ void led_1_task(void *p) {
 
     int delay = 0;
     while (true) {
-        if (xQueueReceive(xQueueButId, &delay, 0)) {
+        if (xQueueReceive(xQueueButId_R, &delay, 0)) {
             printf("%d\n", delay);
         }
 
@@ -61,7 +40,7 @@ void led_2_task(void *p) {
 
     int delay = 0;
     while (true) {
-        if (xQueueReceive(xQueueButId, &delay, 0)) {
+        if (xQueueReceive(xQueueButId_G, &delay, 0)) {
             printf("%d\n", delay);
         }
 
@@ -93,7 +72,7 @@ void btn_1_task(void *p) {
                 delay = 100;
             }
             printf("delay btn %d \n", delay);
-            xQueueSend(xQueueButId, &delay, 0);
+            xQueueSend(xQueueButId_R, &delay, 0);
         }
     }
 }
@@ -117,20 +96,23 @@ void btn_2_task(void *p) {
                 delay = 100;
             }
             printf("delay btn %d \n", delay);
-            xQueueSend(xQueueButId, &delay, 0);
+            xQueueSend(xQueueButId_G, &delay, 0);
         }
     }
 }
-
 
 int main() {
     stdio_init_all();
     printf("Start RTOS \n");
 
-    xQueueButId = xQueueCreate(32, sizeof(int));
+    xQueueButId_R = xQueueCreate(32, sizeof(int));
+    xQueueButId_G = xQueueCreate(32, sizeof(int));
 
     xTaskCreate(led_1_task, "LED_Task 1", 256, NULL, 1, NULL);
     xTaskCreate(btn_1_task, "BTN_Task 1", 256, NULL, 1, NULL);
+
+    xTaskCreate(led_2_task, "LED_Task 2", 256, NULL, 1, NULL);
+    xTaskCreate(btn_2_task, "BTN_Task 2", 256, NULL, 1, NULL);
 
     vTaskStartScheduler();
 
